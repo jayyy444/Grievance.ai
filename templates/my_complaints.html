@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}My Complaints{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <div>
+      <h1 class="page-title">📂 My Complaints</h1>
+      <p class="page-subtitle">Track and manage all your filed complaints</p>
+    </div>
+    <a href="{{ url_for('complaints.submit_complaint') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Complaint</a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <form method="GET" class="filter-bar" style="margin:0">
+        <select name="status" onchange="this.form.submit()" class="form-control" style="width:auto">
+          <option value="">All Statuses</option>
+          {% for s in ['pending','under_review','in_progress','resolved','rejected'] %}
+          <option value="{{ s }}" {{ 'selected' if status_filter == s }}>{{ s.replace('_',' ').title() }}</option>
+          {% endfor %}
+        </select>
+        {% if status_filter %}
+          <a href="{{ url_for('complaints.my_complaints') }}" class="btn btn-ghost btn-sm">Clear filter</a>
+        {% endif %}
+      </form>
+      <span class="text-sm text-muted">{{ complaints.total }} complaint{{ 's' if complaints.total != 1 }}</span>
+    </div>
+
+    {% if complaints.items %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Urgency</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in complaints.items %}
+            <tr>
+              <td class="text-muted text-sm">#{{ c.id }}</td>
+              <td style="max-width:220px">
+                <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+                {% if c.location %}<div class="text-xs text-muted"><i class="fa-solid fa-location-dot"></i> {{ c.location }}</div>{% endif %}
+              </td>
+              <td><span style="font-size:.82rem;font-weight:500">{{ c.category }}</span></td>
+              <td><span class="badge badge-{{ c.urgency }}">{{ c.urgency.title() }}</span></td>
+              <td><span class="badge badge-{{ c.status }}">{{ c.status.replace('_',' ').title() }}</span></td>
+              <td class="text-sm text-muted">{{ c.created_at.strftime('%d %b %y') }}</td>
+              <td><a href="{{ url_for('complaints.track_complaint', complaint_id=c.id) }}" class="btn btn-outline btn-sm">Track</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if complaints.pages > 1 %}
+      <div style="padding:1.25rem 1.5rem">
+        <div class="pagination">
+          {% if complaints.has_prev %}
+            <a href="{{ url_for('complaints.my_complaints', page=complaints.prev_num, status=status_filter) }}" class="page-btn">← Prev</a>
+          {% endif %}
+          {% for p in complaints.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+              <a href="{{ url_for('complaints.my_complaints', page=p, status=status_filter) }}" class="page-btn {{ 'active' if p == complaints.page }}">{{ p }}</a>
+            {% else %}
+              <span class="page-btn" style="cursor:default">…</span>
+            {% endif %}
+          {% endfor %}
+          {% if complaints.has_next %}
+            <a href="{{ url_for('complaints.my_complaints', page=complaints.next_num, status=status_filter) }}" class="page-btn">Next →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No complaints found</h3>
+        <p>{{ 'No complaints match this filter.' if status_filter else 'You haven\'t filed any complaints yet.' }}</p>
+        <a href="{{ url_for('complaints.submit_complaint') }}" class="btn btn-primary" style="margin-top:1rem">File First Complaint</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">👋 Hello, {{ current_user.name.split()[0] }}!</h1>
+    <p class="page-subtitle">Here's an overview of your complaints</p>
+  </div>
+
+  <div class="stats-grid mb-2" style="margin-bottom:1.5rem">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-label">Total Filed</div>
+      <div class="stat-value">{{ stats.total }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" style="color:var(--warning)">{{ stats.pending }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🔄</div>
+      <div class="stat-label">In Progress</div>
+      <div class="stat-value" style="color:var(--info)">{{ stats.in_progress }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Resolved</div>
+      <div class="stat-value" style="color:var(--success)">{{ stats.resolved }}</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;align-items:start">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Complaints</span>
+        <a href="{{ url_for('complaints.my_complaints') }}" class="btn btn-ghost btn-sm">View All</a>
+      </div>
+      {% if recent_complaints %}
+        {% for c in recent_complaints %}
+        <div class="complaint-item">
+          <div class="complaint-info">
+            <div class="complaint-title">{{ c.title }}</div>
+            <div class="complaint-meta">
+              <span><i class="fa-solid fa-tag"></i> {{ c.category }}</span>
+              <span><i class="fa-solid fa-calendar"></i> {{ c.created_at.strftime('%d %b %Y') }}</span>
+              {% if c.location %}<span><i class="fa-solid fa-location-dot"></i> {{ c.location }}</span>{% endif %}
+            </div>
+          </div>
+          <div class="complaint-actions">
+            <span class="badge badge-{{ c.urgency }}">{{ c.urgency.title() }}</span>
+            <span class="badge badge-{{ c.status }}">{{ c.status.replace('_',' ').title() }}</span>
+            <a href="{{ url_for('complaints.track_complaint', complaint_id=c.id) }}" class="btn btn-outline btn-sm">Track</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No complaints yet</h3>
+          <p>File your first complaint and we'll get it resolved.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div class="card">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">🤖</div>
+          <h3 style="font-size:1rem;margin-bottom:.5rem">Use AI Chatbot</h3>
+          <p class="text-sm text-muted" style="margin-bottom:1rem">Let our AI guide you through filing a complaint step by step</p>
+          <a href="{{ url_for('complaints.chatbot_page') }}" class="btn btn-primary btn-full">Start Chat</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:2.5rem;margin-bottom:.75rem">📝</div>
+          <h3 style="font-size:1rem;margin-bottom:.5rem">File Directly</h3>
+          <p class="text-sm text-muted" style="margin-bottom:1rem">Use our smart form — AI auto-detects category and urgency</p>
+          <a href="{{ url_for('complaints.submit_complaint') }}" class="btn btn-accent btn-full">New Complaint</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

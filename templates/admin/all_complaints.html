@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}All Complaints{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="{{ url_for('admin.all_complaints') }}" class="sidebar-link active"><i class="fa-solid fa-list-check"></i> All Complaints</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Filters</div>
+      <a href="{{ url_for('admin.all_complaints', status='pending') }}" class="sidebar-link"><i class="fa-solid fa-clock"></i> Pending</a>
+      <a href="{{ url_for('admin.all_complaints', status='in_progress') }}" class="sidebar-link"><i class="fa-solid fa-rotate"></i> In Progress</a>
+      <a href="{{ url_for('admin.all_complaints', urgency='critical') }}" class="sidebar-link" style="color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i> Critical</a>
+      <a href="{{ url_for('admin.all_complaints', status='resolved') }}" class="sidebar-link"><i class="fa-solid fa-circle-check"></i> Resolved</a>
+    </div>
+  </aside>
+
+  <main class="admin-content">
+    <div class="page-header">
+      <h1 class="page-title">All Complaints</h1>
+      <p class="page-subtitle">{{ complaints.total }} complaint{{ 's' if complaints.total != 1 }} total</p>
+    </div>
+
+    <form method="GET" class="filter-bar card" style="padding:1rem 1.25rem;margin-bottom:1.25rem">
+      <i class="fa-solid fa-filter text-muted"></i>
+      <select name="status" class="form-control" style="width:auto">
+        <option value="">All Statuses</option>
+        {% for s in ['pending','under_review','in_progress','resolved','rejected'] %}
+        <option value="{{ s }}" {{ 'selected' if status_filter == s }}>{{ s.replace('_',' ').title() }}</option>
+        {% endfor %}
+      </select>
+      <select name="urgency" class="form-control" style="width:auto">
+        <option value="">All Urgencies</option>
+        {% for u in ['critical','high','medium','low'] %}
+        <option value="{{ u }}" {{ 'selected' if urgency_filter == u }}>{{ u.title() }}</option>
+        {% endfor %}
+      </select>
+      <select name="category" class="form-control" style="width:auto">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat }}" {{ 'selected' if category_filter == cat }}>{{ cat }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-magnifying-glass"></i> Filter</button>
+      {% if status_filter or urgency_filter or category_filter %}
+        <a href="{{ url_for('admin.all_complaints') }}" class="btn btn-ghost btn-sm">Clear</a>
+      {% endif %}
+    </form>
+
+    <div class="card">
+      {% if complaints.items %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Title</th><th>User</th><th>Category</th><th>Urgency</th><th>Status</th><th>Date</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% for c in complaints.items %}
+            <tr>
+              <td class="text-muted text-sm">#{{ c.id }}</td>
+              <td style="max-width:210px">
+                <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+                {% if c.location %}<div class="text-xs text-muted"><i class="fa-solid fa-location-dot"></i> {{ c.location }}</div>{% endif %}
+              </td>
+              <td class="text-sm">{{ c.user.name }}</td>
+              <td class="text-sm">{{ c.category }}</td>
+              <td><span class="badge badge-{{ c.urgency }}">{{ c.urgency.title() }}</span></td>
+              <td><span class="badge badge-{{ c.status }}">{{ c.status.replace('_',' ').title() }}</span></td>
+              <td class="text-sm text-muted">{{ c.created_at.strftime('%d %b %y') }}</td>
+              <td><a href="{{ url_for('admin.complaint_detail', cid=c.id) }}" class="btn btn-outline btn-sm">Manage</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if complaints.pages > 1 %}
+      <div style="padding:1.25rem 1.5rem">
+        <div class="pagination">
+          {% if complaints.has_prev %}
+            <a href="{{ url_for('admin.all_complaints', page=complaints.prev_num, status=status_filter, urgency=urgency_filter, category=category_filter) }}" class="page-btn">← Prev</a>
+          {% endif %}
+          {% for p in complaints.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+              <a href="{{ url_for('admin.all_complaints', page=p, status=status_filter, urgency=urgency_filter, category=category_filter) }}" class="page-btn {{ 'active' if p == complaints.page }}">{{ p }}</a>
+            {% else %}<span class="page-btn">…</span>{% endif %}
+          {% endfor %}
+          {% if complaints.has_next %}
+            <a href="{{ url_for('admin.all_complaints', page=complaints.next_num, status=status_filter, urgency=urgency_filter, category=category_filter) }}" class="page-btn">Next →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="empty-state"><div class="empty-icon">🔍</div><h3>No complaints found</h3><p>Try changing the filters.</p></div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

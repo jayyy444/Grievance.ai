@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}File Complaint{% endblock %}
+{% block content %}
+<div class="page-container" style="max-width:760px">
+  <div class="page-header">
+    <h1 class="page-title">📝 File a Complaint</h1>
+    <p class="page-subtitle">Our AI will automatically categorize and prioritize your complaint</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="ai-result" style="margin-bottom:1.5rem">
+        <div class="ai-result-title">🤖 AI Auto-Analysis — Active</div>
+        <p class="text-sm text-muted">Fill in the title and description — AI will detect category &amp; urgency automatically.</p>
+      </div>
+
+      <form method="POST" action="{{ url_for('complaints.submit_complaint') }}">
+        <div class="form-group">
+          <label class="form-label" for="title">Complaint Title <span class="req">*</span></label>
+          <input class="form-control" type="text" id="title" name="title" placeholder="e.g. Broken road near Gandhi Chowk causing accidents" required>
+          <div class="form-hint">Be specific — this helps AI classify correctly</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="description">Description <span class="req">*</span></label>
+          <textarea class="form-control" id="description" name="description" rows="6" placeholder="Describe the issue in detail — what happened, how long it's been a problem, who it affects, how severe it is..." required></textarea>
+          <div class="form-hint">More detail = better AI accuracy + faster resolution</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="location">Location / Area</label>
+          <input class="form-control" type="text" id="location" name="location" placeholder="e.g. MG Road, near Post Office, Dhule">
+        </div>
+
+        <div style="display:flex;gap:1rem;justify-content:flex-end;margin-top:1.5rem">
+          <a href="{{ url_for('complaints.dashboard') }}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-paper-plane"></i> Submit Complaint
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.25rem;background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-color:var(--primary-light)">
+    <div class="card-body">
+      <div style="display:flex;gap:1rem;align-items:flex-start">
+        <div style="font-size:1.75rem">💡</div>
+        <div>
+          <h3 style="font-size:.95rem;margin-bottom:.35rem">Tips for a strong complaint</h3>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
+            <li class="text-sm text-muted">✓ Include exact location and nearby landmark</li>
+            <li class="text-sm text-muted">✓ Mention how long the issue has existed</li>
+            <li class="text-sm text-muted">✓ Describe who is affected (residents, commuters, etc.)</li>
+            <li class="text-sm text-muted">✓ Use words like "urgent", "dangerous" if it's critical</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

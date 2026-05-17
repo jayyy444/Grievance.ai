@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Track #{{ complaint.id }}{% endblock %}
+{% block content %}
+<div class="page-container" style="max-width:800px">
+  <div class="page-header">
+    <a href="{{ url_for('complaints.my_complaints') }}" class="btn btn-ghost btn-sm" style="margin-bottom:.75rem">← Back to My Complaints</a>
+    <h1 class="page-title">Complaint #{{ complaint.id }}</h1>
+    <p class="page-subtitle">{{ complaint.created_at.strftime('%A, %d %B %Y at %I:%M %p') }}</p>
+  </div>
+
+  <div style="display:grid;gap:1.25rem">
+    <!-- Status + Badges -->
+    <div class="card">
+      <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div>
+          <div class="text-xs text-muted fw-bold" style="text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Current Status</div>
+          <span class="badge badge-{{ complaint.status }}" style="font-size:.95rem;padding:.4rem 1.1rem">
+            {% if complaint.status == 'pending' %}⏳
+            {% elif complaint.status == 'under_review' %}🔍
+            {% elif complaint.status == 'in_progress' %}🔄
+            {% elif complaint.status == 'resolved' %}✅
+            {% else %}❌{% endif %}
+            {{ complaint.status.replace('_',' ').title() }}
+          </span>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div class="text-xs text-muted">Category</div>
+            <div class="fw-bold text-sm">{{ complaint.category }}</div>
+          </div>
+          <div style="text-align:center">
+            <div class="text-xs text-muted">Urgency</div>
+            <span class="badge badge-{{ complaint.urgency }}">{{ complaint.urgency.title() }}</span>
+          </div>
+          <div style="text-align:center">
+            <div class="text-xs text-muted">AI Score</div>
+            <div class="fw-bold text-sm" style="color:{{ 'var(--danger)' if complaint.sentiment_score < -0.3 else 'var(--success)' }}">
+              {{ '%.2f'|format(complaint.sentiment_score) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Complaint Details</span></div>
+      <div class="card-body">
+        <h3 style="font-size:1.15rem;margin-bottom:.75rem">{{ complaint.title }}</h3>
+        <p style="color:var(--muted);line-height:1.75;white-space:pre-wrap">{{ complaint.description }}</p>
+        {% if complaint.location %}
+        <div style="margin-top:1rem;padding:.75rem 1rem;background:#f8fafc;border-radius:var(--radius-sm);display:flex;align-items:center;gap:.5rem">
+          <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i>
+          <span class="text-sm fw-bold">{{ complaint.location }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">📍 Status Timeline</span></div>
+      <div class="card-body">
+        <div class="timeline">
+          {% set all_statuses = [('pending','Submitted','Your complaint was received'), ('under_review','Under Review','Our team is reviewing your complaint'), ('in_progress','In Progress','Action is being taken to resolve the issue'), ('resolved','Resolved','Your complaint has been resolved')] %}
+          {% set status_order = ['pending','under_review','in_progress','resolved'] %}
+          {% set current_idx = status_order.index(complaint.status) if complaint.status in status_order else -1 %}
+          {% for st, label, desc in all_statuses %}
+            {% set st_idx = status_order.index(st) %}
+            <div class="timeline-item">
+              <div class="timeline-dot {{ 'done' if st_idx <= current_idx else 'pending' }}"></div>
+              <div class="timeline-label" style="color:{{ 'var(--text)' if st_idx <= current_idx else 'var(--light)' }}">{{ label }}</div>
+              <div class="timeline-sub">{{ desc }}</div>
+            </div>
+          {% endfor %}
+          {% if complaint.status == 'rejected' %}
+          <div class="timeline-item">
+            <div class="timeline-dot" style="background:var(--danger)"></div>
+            <div class="timeline-label" style="color:var(--danger)">Rejected</div>
+            <div class="timeline-sub">This complaint was rejected by the administrator</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Notes -->
+    {% if complaint.admin_notes %}
+    <div class="card" style="border-color:var(--primary-light);background:#f0fdfa">
+      <div class="card-header"><span class="card-title">💬 Official Response</span></div>
+      <div class="card-body">
+        <p style="line-height:1.75;white-space:pre-wrap">{{ complaint.admin_notes }}</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

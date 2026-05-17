@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge"><i class="fa-solid fa-robot"></i> Powered by AI &amp; NLP</div>
+      <h1>Smart Municipal Complaint Management</h1>
+      <p>File civic complaints in seconds. Our AI automatically categorizes, prioritizes, and routes your grievances to the right authorities.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-white btn-lg"><i class="fa-solid fa-plus"></i> File a Complaint</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost-white btn-lg"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="features-inner">
+    <div class="section-header">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need to be heard</h2>
+      <p class="section-sub">GrievanceAI makes civic engagement fast, transparent, and effective.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0fdfa;color:#0d9488"><i class="fa-solid fa-brain"></i></div>
+        <div class="feature-title">AI Categorization</div>
+        <p class="feature-desc">Our NLP engine automatically detects the complaint type — sanitation, infrastructure, water supply, and more — so nothing gets lost.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fffbeb;color:#d97706"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div class="feature-title">Sentiment Analysis</div>
+        <p class="feature-desc">AI analyzes urgency from your words. Critical complaints are flagged immediately and prioritized for faster resolution.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0f9ff;color:#0284c7"><i class="fa-solid fa-robot"></i></div>
+        <div class="feature-title">AI Chatbot Assistant</div>
+        <p class="feature-desc">Our guided chatbot walks you through filing a complaint step by step — no confusion, no frustration.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#f0fdf4;color:#16a34a"><i class="fa-solid fa-chart-pie"></i></div>
+        <div class="feature-title">Admin Dashboard</div>
+        <p class="feature-desc">Municipal officers get a real-time view of all complaints, category breakdowns, and status tracking in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fdf4ff;color:#9333ea"><i class="fa-solid fa-location-dot"></i></div>
+        <div class="feature-title">Location Tracking</div>
+        <p class="feature-desc">Complaints are geo-tagged by area, helping authorities identify patterns and hotspots across the city.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fff1f2;color:#e11d48"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="feature-title">Secure & Private</div>
+        <p class="feature-desc">Your data is encrypted and secure. Complaint details are only visible to you and authorized administrators.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <div class="features-inner">
+    <div class="section-header">
+      <div class="section-label">Process</div>
+      <h2 class="section-title">File a complaint in 4 steps</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Register</div>
+        <p class="step-desc">Create your free account in under a minute</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Describe</div>
+        <p class="step-desc">Explain your issue — AI handles categorization</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Submit</div>
+        <p class="step-desc">One click to file and get a complaint ID</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">Track</div>
+        <p class="step-desc">Real-time status updates until resolved</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:3rem">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started — It's Free</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

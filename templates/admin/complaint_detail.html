@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Manage Complaint #{{ complaint.id }}{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="{{ url_for('admin.all_complaints') }}" class="sidebar-link active"><i class="fa-solid fa-list-check"></i> All Complaints</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Filters</div>
+      <a href="{{ url_for('admin.all_complaints', status='pending') }}" class="sidebar-link"><i class="fa-solid fa-clock"></i> Pending</a>
+      <a href="{{ url_for('admin.all_complaints', urgency='critical') }}" class="sidebar-link" style="color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i> Critical</a>
+    </div>
+  </aside>
+
+  <main class="admin-content">
+    <div class="page-header">
+      <a href="{{ url_for('admin.all_complaints') }}" class="btn btn-ghost btn-sm" style="margin-bottom:.75rem">← Back to All Complaints</a>
+      <h1 class="page-title">Complaint #{{ complaint.id }}</h1>
+      <p class="page-subtitle">Filed by <strong>{{ complaint.user.name }}</strong> ({{ complaint.user.email }}) on {{ complaint.created_at.strftime('%d %B %Y at %I:%M %p') }}</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:1.25rem;align-items:start">
+      <!-- Left: Complaint Info -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Complaint Details</span>
+            <div style="display:flex;gap:.5rem">
+              <span class="badge badge-{{ complaint.urgency }}">{{ complaint.urgency.title() }}</span>
+              <span class="badge badge-{{ complaint.status }}">{{ complaint.status.replace('_',' ').title() }}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <h3 style="font-size:1.1rem;margin-bottom:.75rem">{{ complaint.title }}</h3>
+            <p style="color:var(--muted);line-height:1.75;white-space:pre-wrap">{{ complaint.description }}</p>
+            {% if complaint.location %}
+            <div style="margin-top:1rem;padding:.75rem;background:#f8fafc;border-radius:var(--radius-sm);display:flex;align-items:center;gap:.5rem">
+              <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i>
+              <span class="text-sm fw-bold">{{ complaint.location }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- AI Analysis -->
+        <div class="card" style="background:linear-gradient(135deg,#f0fdfa,#ccfbf1);border-color:var(--primary-light)">
+          <div class="card-header"><span class="card-title">🤖 AI Analysis</span></div>
+          <div class="card-body">
+            <div class="ai-result-grid">
+              <div class="ai-result-item">
+                <div class="ai-result-label">Category</div>
+                <div class="ai-result-val">{{ complaint.category }}</div>
+              </div>
+              <div class="ai-result-item">
+                <div class="ai-result-label">Urgency Level</div>
+                <div class="ai-result-val">{{ complaint.urgency.title() }}</div>
+              </div>
+              <div class="ai-result-item">
+                <div class="ai-result-label">Sentiment Score</div>
+                <div class="ai-result-val" style="color:{{ 'var(--danger)' if complaint.sentiment_score < -0.3 else 'var(--success)' }}">
+                  {{ '%.3f'|format(complaint.sentiment_score) }}
+                </div>
+              </div>
+            </div>
+            <p class="text-xs text-muted" style="margin-top:.75rem">Score closer to -1.0 = highly negative/urgent. Score near 0 = neutral.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Update Status -->
+      <div class="card" style="position:sticky;top:80px">
+        <div class="card-header"><span class="card-title">⚙️ Update Status</span></div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('admin.complaint_detail', cid=complaint.id) }}">
+            <div class="form-group">
+              <label class="form-label">Change Status</label>
+              {% set status_icons = {'pending':'⏳','under_review':'🔍','in_progress':'🔄','resolved':'✅','rejected':'❌'} %}
+              <div style="display:flex;flex-direction:column;gap:.5rem">
+                {% for s in statuses %}
+                <label style="display:flex;align-items:center;gap:.75rem;padding:.6rem .85rem;border:2px solid {{ 'var(--primary)' if complaint.status == s else 'var(--border)' }};border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;background:{{ '#f0fdfa' if complaint.status == s else 'white' }}">
+                  <input type="radio" name="status" value="{{ s }}" {{ 'checked' if complaint.status == s }} style="accent-color:var(--primary)">
+                  <span style="font-size:.9rem;font-weight:{{ '700' if complaint.status == s else '500' }}">{{ status_icons.get(s,'•') }} {{ s.replace('_',' ').title() }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin_notes">Official Response / Notes</label>
+              <textarea class="form-control" id="admin_notes" name="admin_notes" rows="4" placeholder="Add an update message for the citizen...">{{ complaint.admin_notes or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-floppy-disk"></i> Save Update</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

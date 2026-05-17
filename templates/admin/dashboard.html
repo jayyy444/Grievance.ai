@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a href="{{ url_for('admin.all_complaints') }}" class="sidebar-link"><i class="fa-solid fa-list-check"></i> All Complaints</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quick Filters</div>
+      <a href="{{ url_for('admin.all_complaints', status='pending') }}" class="sidebar-link"><i class="fa-solid fa-clock"></i> Pending</a>
+      <a href="{{ url_for('admin.all_complaints', status='in_progress') }}" class="sidebar-link"><i class="fa-solid fa-rotate"></i> In Progress</a>
+      <a href="{{ url_for('admin.all_complaints', urgency='critical') }}" class="sidebar-link" style="color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i> Critical</a>
+      <a href="{{ url_for('admin.all_complaints', status='resolved') }}" class="sidebar-link"><i class="fa-solid fa-circle-check"></i> Resolved</a>
+    </div>
+    <div class="sidebar-section" style="margin-top:auto;padding-top:1rem">
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <main class="admin-content">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-subtitle">Real-time overview of all civic complaints</p>
+      </div>
+      <a href="{{ url_for('admin.all_complaints') }}" class="btn btn-primary"><i class="fa-solid fa-list"></i> Manage All</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom:1.5rem">
+      <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-label">Total</div><div class="stat-value">{{ stats.total }}</div></div>
+      <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--warning)">{{ stats.pending }}</div></div>
+      <div class="stat-card"><div class="stat-icon">🔍</div><div class="stat-label">Under Review</div><div class="stat-value" style="color:var(--info)">{{ stats.under_review }}</div></div>
+      <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-label">In Progress</div><div class="stat-value" style="color:#7c3aed">{{ stats.in_progress }}</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Resolved</div><div class="stat-value" style="color:var(--success)">{{ stats.resolved }}</div></div>
+      <div class="stat-card"><div class="stat-icon">🚨</div><div class="stat-label">Critical</div><div class="stat-value" style="color:var(--danger)">{{ stats.critical }}</div></div>
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Users</div><div class="stat-value">{{ stats.users }}</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+      <!-- Category Breakdown -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">📊 By Category</span></div>
+        <div class="card-body">
+          {% for cat, count in category_stats|sort(attribute=1, reverse=True) %}
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem">
+            <span style="width:130px;font-size:.8rem;font-weight:600;color:var(--muted);flex-shrink:0">{{ cat }}</span>
+            <div style="flex:1;background:#f1f5f9;border-radius:99px;height:8px;overflow:hidden">
+              <div style="height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:99px;width:{{ ((count / stats.total) * 100)|round|int if stats.total else 0 }}%"></div>
+            </div>
+            <span style="font-size:.82rem;font-weight:700;color:var(--text);min-width:24px;text-align:right">{{ count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Urgency Breakdown -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚡ By Urgency</span></div>
+        <div class="card-body">
+          {% set urgency_colors = {'critical':'#dc2626','high':'#ea580c','medium':'#d97706','low':'#16a34a'} %}
+          {% for level, count in urgency_stats|sort(attribute=1, reverse=True) %}
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.85rem">
+            <span style="width:80px;font-size:.8rem;font-weight:600;color:{{ urgency_colors.get(level,'var(--muted)') }};flex-shrink:0">{{ level.title() }}</span>
+            <div style="flex:1;background:#f1f5f9;border-radius:99px;height:8px;overflow:hidden">
+              <div style="height:100%;background:{{ urgency_colors.get(level,'var(--primary)') }};border-radius:99px;width:{{ ((count / stats.total) * 100)|round|int if stats.total else 0 }}%"></div>
+            </div>
+            <span style="font-size:.82rem;font-weight:700;color:var(--text);min-width:24px;text-align:right">{{ count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Complaints -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🕐 Recent Complaints</span>
+        <a href="{{ url_for('admin.all_complaints') }}" class="btn btn-ghost btn-sm">View All</a>
+      </div>
+      {% if recent_complaints %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Title</th><th>User</th><th>Category</th><th>Urgency</th><th>Status</th><th>Date</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% for c in recent_complaints %}
+            <tr>
+              <td class="text-muted text-sm">#{{ c.id }}</td>
+              <td style="max-width:200px"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div></td>
+              <td class="text-sm">{{ c.user.name }}</td>
+              <td class="text-sm">{{ c.category }}</td>
+              <td><span class="badge badge-{{ c.urgency }}">{{ c.urgency.title() }}</span></td>
+              <td><span class="badge badge-{{ c.status }}">{{ c.status.replace('_',' ').title() }}</span></td>
+              <td class="text-sm text-muted">{{ c.created_at.strftime('%d %b') }}</td>
+              <td><a href="{{ url_for('admin.complaint_detail', cid=c.id) }}" class="btn btn-outline btn-sm">Manage</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state"><div class="empty-icon">📭</div><h3>No complaints yet</h3></div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
