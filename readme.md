@@ -36,7 +36,25 @@ Platform:  Railway (Free Tier)
 Config:  Environment variables (SECRET_KEY, ADMIN_EMAIL, ADMIN_PASSWORD)
 
 Project Structure
-grievance-ai/ ├── app.py               # App factory, DB init, admin seeding ├── config.py            # Railway + local config, env vars ├── models.py            # User and Complaint SQLAlchemy models ├── ai_utils.py          # NLP categorization + sentiment analysis ├── routes/ │   ├── auth.py          # Register, login, logout │   ├── complaints.py    # Submit, list, track, chatbot API │   └── admin.py         # Admin dashboard, manage complaints ├── chatbot/ │   └── chatbot.py       # 6-step guided chatbot logic ├── static/ │   ├── style.css        # Full custom UI design system │   └── script.js        # Chatbot frontend + interactions ├── templates/           # 9 Jinja2 HTML templates │   └── admin/           # 3 admin-specific templates ├── requirements.txt     # All pinned dependencies ├── Procfile             # gunicorn command for Railway ├── runtime.txt          # Python 3.11.9 └── .gitignore           # venv, __pycache__, *.db excluded
+grievance-ai/
+├── app.py                  ← entry point
+├── config.py               ← Railway env vars
+├── models.py               ← User + Complaint DB models
+├── ai_utils.py             ← keyword NLP + TextBlob sentiment
+├── routes/
+│   ├── auth.py             ← register / login / logout
+│   ├── complaints.py       ← submit / my-complaints / track / chatbot API
+│   └── admin.py            ← admin dashboard + manage complaints
+├── chatbot/
+│   └── chatbot.py          ← 6-step guided chatbot logic
+├── static/
+│   ├── style.css           ← full custom UI (Sora + DM Sans fonts)
+│   └── script.js           ← chatbot frontend + flash dismiss + nav
+├── templates/              ← 9 HTML templates (user + 3 admin)
+├── requirements.txt        ← pinned, current versions
+├── Procfile                ← gunicorn for Railway
+├── runtime.txt             ← Python 3.11.9
+└── .gitignore              ← venv, __pycache__, *.db excluded
 
 Installation & Local Setup
 Prerequisites
